@@ -1,9 +1,9 @@
 import React from "react";
 import Person from "./Person";
 
-const Persons = ({ persons }) => {
+const Persons = (props) => {
   const rows = () =>
-    persons.map(person => <Person person={person} key={person.id} />);
+    props.persons.map(person => <Person deletePerson={() => props.deletePerson(person)} person={person} key={person.id} />);
   return (
     <div>
       <h2>Number</h2>

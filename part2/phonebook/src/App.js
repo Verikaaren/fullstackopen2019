@@ -1,33 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
+import personService from "./services/persons";
 
+import Persons from "./components/Persons";
 import Filter from "./components/Filter";
-import PersonForm from "./components/PersonForm";
-import Persons from "./components/Persons"
+import Notification from './components/Notification'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    {
-      name: "Arto Hellas",
-      id: 1
-    },
-    {
-      name: "Eveliala",
-      id: 2
-    },
-    {
-      name: "Andrei",
-      id: 4
-    },
-    {
-      name: "Esko Kauskas",
-      id: 3
-    }
-  ]);
+  useEffect(() => {
+    personService.getAll().then(response => {
+      setPersons(response.data);
+    });
+  }, []);
 
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newSearch, setNewSearch] = useState("");
+
+  const [ errorMessage, setErrorMessage] = useState({
+    message: null,
+    type: null
+  })
 
   
 
@@ -44,21 +38,29 @@ const App = () => {
     setNewSearch(event.target.value);
     let found = persons.filter(person => person.name.includes(newSearch));
     setPersons(found);
-console.log(found);
   };
 
   const addPerson = event => {
     event.preventDefault();
     let check = false;
+    let id = 0
 
     persons.map(person => {
       if (person.name === newName) {
         check = true;
+        id = person.id;
       }
     });
 
     if (check === true) {
-      alert(`${newName} is already added to phonebook`);
+      
+      if (
+        window.confirm(
+          ` ${newName} is already in phonebook, do you want to replace old number with new one?`
+        )
+      ) {
+          replaceNumber(id, newNumber);
+      }
       setNewName("");
       setNewNumber("");
     } else {
@@ -67,34 +69,91 @@ console.log(found);
         number: newNumber,
         id: persons.length + 2
       };
-      setPersons(persons.concat(personObject));
-      setNewName("");
-      setNewNumber("");
+      personService.create(personObject).then(response => {
+        setPersons(persons.concat(response.data));
+        setErrorMessage({
+          message: `${newName} is added to Phonebook`,
+          type: 'note'
+        })
+        setTimeout(() => {            
+            setErrorMessage({...errorMessage, message: null})
+        }, 2000)
+        setNewName("");
+        setNewNumber("");
+      });
     }
   };
+
+  const deleteNumber = person => {
+    console.log(person)
+    if (window.confirm(`Do you really want to delete ${person.name}?`)) {
+      personService
+        .deleteIt(person.id)        
+        .then(  response => {
+          setPersons(persons.filter(p => p.id !== person.id))          
+          setErrorMessage({
+            message: `${person.name} was deleted from server`,
+            type: 'green'
+          })
+          setTimeout(() => {
+            setErrorMessage({...errorMessage, message:null})
+          },2000)
+        }                       
+        
+        )
+        .catch(error=> {
+          setErrorMessage({
+            message: `Information of${person.name} was already deleted from sever`,
+            type: 'error'
+          })
+          setTimeout(() => {
+            setErrorMessage({...errorMessage, message: null})
+          }, 2000)
+        })
+    }
+  };
+/**/
+  const replaceNumber = (id, newNumber) => {
+      const person = persons.find(p => p.id === id)
+      const replacedNumber = {...person, number:newNumber}
+    
+      personService
+        .update(id, replacedNumber)
+        .then(returnedPerson => {
+          
+            setPersons(persons.map(person => person.id !== id ? person : returnedPerson.data))
+        })
+        .catch(error => {          
+            alert(
+                `the person ${person.name} was already deleted from server`
+            )
+            setPersons(persons.filter(n => n.id !== id))
+        })
+
+      
+  }
 
   return (
     <div>
       <h1>Phonebook</h1>
 
-      <div>
-          
-          
-        <Filter value={newSearch} changeEvent={handlePersonSearch} />
+      <Notification state={errorMessage}  />
 
-        <PersonForm
-          nameValue={newName}
-          nameChange={handlePersonChange}
-          numberValue={newNumber}
-          numberChange={handleNumberChange}
-          submitEvent={addPerson}
-        />
+      <Filter filterValue={newSearch} changeEvent={handlePersonSearch} />
 
-        
-      </div>
-      
+      <form onSubmit={addPerson}>
+        <div>
+          name: <input value={newName} onChange={handlePersonChange} />
+          <br />
+          number:
+          <input value={newNumber} onChange={handleNumberChange} />
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
 
-      <Persons persons={persons} />
+      <Persons persons={persons} deletePerson={deleteNumber} />
     </div>
   );
 };

@@ -1,11 +1,12 @@
 import React from "react";
 
-const Person = ({ person }) => {
+const Person = (props) => {
   return (
     <div>
       <p>
-        {person.name} {person.number}
+        {props.person.name} {props.person.number} <span role="img" onClick={props.deletePerson} >❌ </span>
       </p>
+      
     </div>
   );
 };
