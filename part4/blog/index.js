@@ -1,3 +1,4 @@
+const config = require('./utils/config');
 const http = require('http');
 const express = require('express');
 const app = express();
@@ -14,13 +15,11 @@ const blogSchema = mongoose.Schema({
 
 const Blog = mongoose.model('Blog', blogSchema);
 
-const url =
-	'mongodb+srv://Bulgur_Ghost:yuLqezjrHpfongjogrQPldCOOOIQgvTyzicQTFGGodCAHiOmFNkeGnkQWifzHVzwefQaQ@cluster0-tlf7e.mongodb.net/blog?retryWrites=true&w=majority';
-
+const url = config.MONGODB_URI;
 
 mongoose
 	.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-	
+
 	.then(result => {
 		console.log('connected to MongoDB');
 	})
@@ -45,7 +44,6 @@ app.post('/api/blogs', (request, response) => {
 	});
 });
 
-const PORT = 3003;
-app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`);
+app.listen(config.PORT, () => {
+	console.log(`Server running on port ${config.PORT}`);
 });
