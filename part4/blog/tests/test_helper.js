@@ -17,6 +17,19 @@ const initialPost = [
     },
 ] 
 
+const nonExistingId = async () => {
+    const post = new Blog({title: 'kustutamisele'})
+    await post.save()
+    await post.remove()
+
+    return post._id.toString
+}
+
+const postsInDb = async () => {
+    const posts = await Blog.find({})
+    return posts.map(post => post.toJSON())
+}
+
 module.exports = {
-    initialPost
+    initialPost, nonExistingId, postsInDb
 }

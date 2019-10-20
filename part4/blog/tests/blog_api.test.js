@@ -70,6 +70,30 @@ test('a valid posts can be added', async () => {
     )
 })
 
+describe('deletion of post', () => {
+    test('succeeds with status code 204 id id is valid', async () => {
+        const postsAtStart = await helper.postsInDb()
+        const postToDelete = postsAtStart[0]
+        
+
+        await api 
+            .delete(`/api/blogs/${postToDelete.id}`)
+            .expect(204)
+
+        const postsAtEnd = await helper.postsInDb()
+
+       
+
+        expect(postsAtEnd.length).toBe(
+            helper.initalPosts.lenght - 1
+        )
+
+        const titles = postsAtEnd.map(p => p.title)
+
+        expect(titles).not.toContain(postToDelete.title)
+    })
+})
+
 
 
 
