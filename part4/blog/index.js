@@ -1,33 +1,9 @@
-const config = require('./utils/config');
-const bodyParser = require('body-parser');
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const blogsRouter = require('./controllers/blogs');
-const middleware = require('./utils/middleware');
-const mongoose = require('mongoose');
+const app = require('./app') // the actual Express app
+const http = require('http')
+const config = require('./utils/config')
 
-mongoose
-	.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+const server = http.createServer(app)
 
-	.then(result => {
-		console.log('connected to MongoDB');
-	})
-	.catch(error => {
-		console.log('error connecting to MongoDB:', error.message);
-	});
-
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.json())
-app.use(middleware.requestLogger)
-
-
-app.use('/api/blogs', blogsRouter)
-
-app.use(middleware.unknownEndpoint)
-app.use(middleware.errorHandler)
-
-app.listen(config.PORT, () => {
-	console.log(`Server running on port ${config.PORT}`);
-});
+server.listen(config.PORT, () => {
+  console.log(`Server running on port ${config.PORT}`)
+})
