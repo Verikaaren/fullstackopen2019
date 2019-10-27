@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Blog from './components/Blog';
+import BlogForm from './components/Blog';
 import blogService from './services/blogs';
 import loginService from './services/login';
 
+
+
 const App = () => {
+	const [blogVisible, setBlogVisible] = useState(false);
 	const [blogs, setBlogs] = useState([]);
 	const [username, setUsername] = useState('mluukkai');
 	// const [userId, setUserId] = useState()
@@ -23,13 +27,13 @@ const App = () => {
 	}, []);
 
 	useEffect(() => {
-		const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+		const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser');
 		if (loggedUserJSON) {
-			const user = JSON.parse(loggedUserJSON)
-			setUser(user)
-			blogService.setToken(user.token)
+			const user = JSON.parse(loggedUserJSON);
+			setUser(user);
+			blogService.setToken(user.token);
 		}
-	}, [])
+	}, []);
 
 	const handleLogin = async event => {
 		event.preventDefault();
@@ -90,7 +94,7 @@ const App = () => {
 		setPost({});
 	};
 
-	const blogForm = () => (
+	/* 	const blogForm = () => (
 		<form onSubmit={addBlog}>
 			<h3>Add Post</h3>
 			Title
@@ -130,25 +134,61 @@ const App = () => {
 				<button type="submit">save</button>
 			</p>
 		</form>
-	);
+	); */
 
-	
+	const blogForm = () => {
+		const hidenWhenVisible = { display: blogVisible ? 'none' : '' };
+		const showWhenVisible = { display: blogVisible ? '' : 'none' };
+
+		return (
+			<div>
+				<div style={hidenWhenVisible}>
+					<button onClick={() => setBlogVisible(true)}> log in</button>
+				</div>
+				<div style={showWhenVisible}>
+					<BlogForm
+						title={post.title}
+						author={post.author}
+						url={post.url}
+						handleTitleChange={({ target }) =>
+							setPost({
+								...post,
+								title: target.value,
+								userId: user.userId
+							})
+						}
+						handleAuthorChange={({ target }) =>
+							setPost({
+								...post,
+								author: target.value
+							})
+						}
+						handleUrlChange={({ target }) =>
+							setPost({
+								...post,
+								url: target.value
+							})
+						}
+						handleSubmit={addBlog}
+					/>
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<div className="App">
 			{user === null ? (
 				loginForm()
-				
 			) : (
 				<div>
 					<h1>Posts</h1>
 
 					<h3>
 						{`${user.name} is logged in`}
-						<button
-						 onClick={() => setUser(null)}>Log out</button>
+						<button onClick={() => setUser(null)}>Log out</button>
 					</h3>
-
+					{console.log(blogs)}
 					{blogs.map(blog => (
 						<Blog key={blog._id} blog={blog} />
 					))}
