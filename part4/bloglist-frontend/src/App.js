@@ -1,25 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import { useField } from './hooks';
 
 import Blog from './components/Blog';
 import Togglable from './components/Togglable';
 import BlogForm from './components/BlogForm';
 
 const App = () => {
-	/* const [blogVisible, setBlogVisible] = useState(false); */
 	const [blogs, setBlogs] = useState([]);
 	const [username, setUsername] = useState('mluukkai');
-	// const [userId, setUserId] = useState()
+
 	const [password, setPassword] = useState('salainen');
 	const [user, setUser] = useState(null);
-	const [post, setPost] = useState({
+	/* 	const [post, setPost] = useState({
 		title: '',
 		author: '',
 		url: '',
-		userId: '',
-		likes: 0
-	});
+		userId: ''
+	}); */
+
+	const title = useField('text');
+	const author = useField('text');
+	const url = useField('text');
 
 	const blogFormRef = React.createRef();
 
@@ -88,6 +91,12 @@ const App = () => {
 	};
 
 	const addBlog = event => {
+		const post = {
+			author: author.value,
+			title: title.value,
+			url: url.value,
+			userId: user.userId
+		};
 		event.preventDefault();
 		blogFormRef.current.toggleVisibility();
 
@@ -95,7 +104,9 @@ const App = () => {
 			setBlogs(blogs.concat(response));
 		});
 
-		setPost({});
+		title.reset();
+		author.reset();
+		url.reset();
 	};
 
 	const blogForm = () => {
@@ -106,27 +117,9 @@ const App = () => {
 			<div>
 				<Togglable buttonLabel="ADD POST" ref={blogFormRef}>
 					<BlogForm
-						post={post}
-						handleTitleChange={({ target }) =>
-							setPost({
-								...post,
-								title: target.value,
-								userId: user.userId,
-								likes: Math.floor(Math.random() * 10000)
-							})
-						}
-						handleAuthorChange={({ target }) =>
-							setPost({
-								...post,
-								author: target.value
-							})
-						}
-						handleUrlChange={({ target }) =>
-							setPost({
-								...post,
-								url: target.value
-							})
-						}
+						title={title}
+						author={author}
+						url={url}
 						handleSubmit={addBlog}
 					/>
 				</Togglable>
