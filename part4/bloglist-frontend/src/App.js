@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Blog from './components/Blog';
-import BlogForm from './components/Blog';
+import Togglable from './components/Togglable';
+import BlogForm from './components/BlogForm';
 import blogService from './services/blogs';
 import loginService from './services/login';
 
-
-
 const App = () => {
-	const [blogVisible, setBlogVisible] = useState(false);
+	/* const [blogVisible, setBlogVisible] = useState(false); */
 	const [blogs, setBlogs] = useState([]);
 	const [username, setUsername] = useState('mluukkai');
 	// const [userId, setUserId] = useState()
@@ -19,6 +18,8 @@ const App = () => {
 		url: '',
 		userId: ''
 	});
+
+	const blogFormRef = React.createRef();
 
 	useEffect(() => {
 		blogService.getAll().then(response => {
@@ -86,6 +87,7 @@ const App = () => {
 
 	const addBlog = event => {
 		event.preventDefault();
+		blogFormRef.current.toggleVisibility();
 
 		blogService.create(post).then(response => {
 			setBlogs(blogs.concat(response));
@@ -94,62 +96,15 @@ const App = () => {
 		setPost({});
 	};
 
-	/* 	const blogForm = () => (
-		<form onSubmit={addBlog}>
-			<h3>Add Post</h3>
-			Title
-			<input
-				value={post.title}
-				onChange={({ target }) =>
-					setPost({
-						...post,
-						title: target.value,
-						userId: user.userId
-					})
-				}
-			/>
-			<br />
-			Author
-			<input
-				value={post.author}
-				onChange={({ target }) =>
-					setPost({
-						...post,
-						author: target.value
-					})
-				}
-			/>
-			<br />
-			URL
-			<input
-				value={post.url}
-				onChange={({ target }) =>
-					setPost({
-						...post,
-						url: target.value
-					})
-				}
-			/>
-			<p>
-				<button type="submit">save</button>
-			</p>
-		</form>
-	); */
-
 	const blogForm = () => {
-		const hidenWhenVisible = { display: blogVisible ? 'none' : '' };
-		const showWhenVisible = { display: blogVisible ? '' : 'none' };
+		/* const hidenWhenVisible = { display: blogVisible ? 'none' : '' };
+		const showWhenVisible = { display: blogVisible ? '' : 'none' }; */
 
 		return (
 			<div>
-				<div style={hidenWhenVisible}>
-					<button onClick={() => setBlogVisible(true)}> log in</button>
-				</div>
-				<div style={showWhenVisible}>
+				<Togglable buttonLabel="ADD POST" ref={blogFormRef}>
 					<BlogForm
-						title={post.title}
-						author={post.author}
-						url={post.url}
+						post={post}
 						handleTitleChange={({ target }) =>
 							setPost({
 								...post,
@@ -171,7 +126,8 @@ const App = () => {
 						}
 						handleSubmit={addBlog}
 					/>
-				</div>
+				</Togglable>
+				{/* <button onClick={() => setBlogVisible(false)}>cancel</button> */}
 			</div>
 		);
 	};
