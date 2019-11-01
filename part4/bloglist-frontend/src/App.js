@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import blogService from './services/blogs';
+import loginService from './services/login';
+
 import Blog from './components/Blog';
 import Togglable from './components/Togglable';
 import BlogForm from './components/BlogForm';
-import blogService from './services/blogs';
-import loginService from './services/login';
 
 const App = () => {
 	/* const [blogVisible, setBlogVisible] = useState(false); */
@@ -16,7 +17,8 @@ const App = () => {
 		title: '',
 		author: '',
 		url: '',
-		userId: ''
+		userId: '',
+		likes: 0
 	});
 
 	const blogFormRef = React.createRef();
@@ -109,7 +111,8 @@ const App = () => {
 							setPost({
 								...post,
 								title: target.value,
-								userId: user.userId
+								userId: user.userId,
+								likes: Math.floor(Math.random() * 10000)
 							})
 						}
 						handleAuthorChange={({ target }) =>
@@ -144,7 +147,7 @@ const App = () => {
 						{`${user.name} is logged in`}
 						<button onClick={() => setUser(null)}>Log out</button>
 					</h3>
-					{console.log(blogs)}
+
 					{blogs.map(blog => (
 						<Blog key={blog._id} blog={blog} />
 					))}
