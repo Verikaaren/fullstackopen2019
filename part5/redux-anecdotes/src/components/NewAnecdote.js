@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 import React from 'react';
+import { connect } from 'react-redux'
 import { createAnecdote } from '../reducers/anecdoteReducer';
 import { voteNotification } from '../reducers/notificationReducer'
 
@@ -21,4 +22,8 @@ const NewAnecdote = props => {
 	);
 };
 
-export default NewAnecdote;
+export default connect(
+null,
+{ createAnecdote, voteNotification }
+
+) (NewAnecdote);
