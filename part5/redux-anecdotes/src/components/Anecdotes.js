@@ -7,9 +7,9 @@ import { voteNotification } from '../reducers/notificationReducer'
 
 const Anecdotes = props => {
 
-    let  vote =  (id, anecdote) => {
-        props.voteAnecdote(id)
-        props.voteNotification(`you vote ${anecdote}`)
+    let  vote =  (anecdote) => {
+        props.voteAnecdote(anecdote)
+        props.voteNotification(`you vote ${anecdote.content}`)
         setTimeout(() => props.voteNotification(null), 5000)
     }
 
@@ -18,7 +18,7 @@ const Anecdotes = props => {
 			{props.anecdotes.map(dote => (
 				<Anecdote
 					anecdote={dote}
-					handleClick={() => vote(dote.id, dote.content)}
+					handleClick={() => vote(dote)}
 				/>
 			))}
 		</div>
